@@ -40,7 +40,7 @@ Claude Code → reads/writes your codebase
 ### npx skills (recommended)
 
 ```bash
-npx skills add https://github.com/op7418/Claude-to-IM-skill.git --skill claude-to-im
+npx skills add op7418/Claude-to-IM-skill
 ```
 
 ### Git clone
