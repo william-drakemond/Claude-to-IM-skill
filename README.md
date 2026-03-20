@@ -1,10 +1,10 @@
 # Claude-to-IM Skill
 
-Bridge Claude Code / Codex to IM platforms — chat with AI coding agents from Telegram, Discord, Feishu/Lark, or QQ.
+Bridge Claude Code / Codex to IM platforms — chat with AI coding agents from Telegram, Discord, Slack, Feishu/Lark, or QQ.
 
 [中文文档](README_CN.md)
 
-> **Want a desktop GUI instead?** Check out [CodePilot](https://github.com/op7418/CodePilot) — a full-featured desktop app with visual chat interface, session management, file tree preview, permission controls, and more. This skill was extracted from CodePilot's IM bridge module for users who prefer a lightweight, CLI-only setup.
+> **Want a desktop GUI instead?** Check out [CodePilot](https://github.com/william-drakemond/CodePilot) — a full-featured desktop app with visual chat interface, session management, file tree preview, permission controls, and more. This skill was extracted from CodePilot's IM bridge module for users who prefer a lightweight, CLI-only setup.
 
 ---
 
@@ -13,7 +13,7 @@ Bridge Claude Code / Codex to IM platforms — chat with AI coding agents from T
 This skill runs a background daemon that connects your IM bots to Claude Code or Codex sessions. Messages from IM are forwarded to the AI coding agent, and responses (including tool use, permission requests, streaming previews) are sent back to your chat.
 
 ```
-You (Telegram/Discord/Feishu/QQ)
+You (Telegram/Discord/Slack/Feishu/QQ)
   ↕ Bot API
 Background Daemon (Node.js)
   ↕ Claude Agent SDK or Codex SDK (configurable via CTI_RUNTIME)
@@ -22,10 +22,10 @@ Claude Code / Codex → reads/writes your codebase
 
 ## Features
 
-- **Four IM platforms** — Telegram, Discord, Feishu/Lark, QQ — enable any combination
+- **Five IM platforms** — Telegram, Discord, Slack, Feishu/Lark, QQ — enable any combination
 - **Interactive setup** — guided wizard collects tokens with step-by-step instructions
-- **Permission control** — tool calls require explicit approval via inline buttons (Telegram/Discord) or text `/perm` commands (Feishu/QQ)
-- **Streaming preview** — see Claude's response as it types (Telegram & Discord)
+- **Permission control** — tool calls require explicit approval via inline buttons (Telegram/Discord/Slack) or text `/perm` commands (Feishu/QQ)
+- **Streaming preview** — see Claude's response as it types (Telegram, Discord & Slack)
 - **Session persistence** — conversations survive daemon restarts
 - **Secret protection** — tokens stored with `chmod 600`, auto-redacted in all logs
 - **Zero code required** — install the skill and run `/claude-to-im setup`, that's it
@@ -41,13 +41,13 @@ Claude Code / Codex → reads/writes your codebase
 ### npx skills (recommended)
 
 ```bash
-npx skills add op7418/Claude-to-IM-skill
+npx skills add william-drakemond/Claude-to-IM-skill
 ```
 
 ### Git clone
 
 ```bash
-git clone https://github.com/op7418/Claude-to-IM-skill.git ~/.claude/skills/claude-to-im
+git clone https://github.com/william-drakemond/Claude-to-IM-skill.git ~/.claude/skills/claude-to-im
 ```
 
 Clones the repo directly into your personal skills directory. Claude Code discovers it automatically.
@@ -57,7 +57,7 @@ Clones the repo directly into your personal skills directory. Claude Code discov
 If you prefer to keep the repo elsewhere (e.g., for development):
 
 ```bash
-git clone https://github.com/op7418/Claude-to-IM-skill.git ~/code/Claude-to-IM-skill
+git clone https://github.com/william-drakemond/Claude-to-IM-skill.git ~/code/Claude-to-IM-skill
 mkdir -p ~/.claude/skills
 ln -s ~/code/Claude-to-IM-skill ~/.claude/skills/claude-to-im
 ```
@@ -67,14 +67,14 @@ ln -s ~/code/Claude-to-IM-skill ~/.claude/skills/claude-to-im
 If you use [Codex](https://github.com/openai/codex), clone directly into the Codex skills directory:
 
 ```bash
-git clone https://github.com/op7418/Claude-to-IM-skill.git ~/.codex/skills/claude-to-im
+git clone https://github.com/william-drakemond/Claude-to-IM-skill.git ~/.codex/skills/claude-to-im
 ```
 
 Or use the provided install script for automatic dependency installation and build:
 
 ```bash
 # Clone and install (copy mode)
-git clone https://github.com/op7418/Claude-to-IM-skill.git ~/code/Claude-to-IM-skill
+git clone https://github.com/william-drakemond/Claude-to-IM-skill.git ~/code/Claude-to-IM-skill
 bash ~/code/Claude-to-IM-skill/scripts/install-codex.sh
 
 # Or use symlink mode for development
@@ -97,7 +97,7 @@ bash ~/code/Claude-to-IM-skill/scripts/install-codex.sh --link
 
 The wizard will guide you through:
 
-1. **Choose channels** — pick Telegram, Discord, Feishu, QQ, or any combination
+1. **Choose channels** — pick Telegram, Discord, Slack, Feishu, QQ, or any combination
 2. **Enter credentials** — the wizard explains exactly where to get each token, which settings to enable, and what permissions to grant
 3. **Set defaults** — working directory, model, and mode
 4. **Validate** — tokens are verified against platform APIs immediately
@@ -148,6 +148,15 @@ The `setup` wizard provides inline guidance for every step. Here's a summary:
 2. Bot tab → Reset Token → copy it
 3. Enable **Message Content Intent** under Privileged Gateway Intents
 4. OAuth2 → URL Generator → scope `bot` → permissions: Send Messages, Read Message History, View Channels → copy invite URL
+
+### Slack
+
+1. Go to [Slack API](https://api.slack.com/apps) → Create New App → From scratch
+2. Enable **Socket Mode** (no public URL needed) → create an App-Level Token (`xapp-...`)
+3. OAuth & Permissions → add Bot Token Scopes: `chat:write`, `channels:history`, `groups:history`, `im:history`, `mpim:history`, `files:read`, `users:read`
+4. Install to Workspace → copy Bot User OAuth Token (`xoxb-...`)
+5. Event Subscriptions → subscribe to `message.channels`, `message.groups`, `message.im`, `message.mpim`
+6. Interactivity & Shortcuts → enable (for permission buttons)
 
 ### Feishu / Lark
 

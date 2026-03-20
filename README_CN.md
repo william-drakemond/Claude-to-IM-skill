@@ -1,10 +1,10 @@
 # Claude-to-IM Skill
 
-将 Claude Code / Codex 桥接到 IM 平台 —— 在 Telegram、Discord、飞书或 QQ 中与 AI 编程代理对话。
+将 Claude Code / Codex 桥接到 IM 平台 —— 在 Telegram、Discord、Slack、飞书或 QQ 中与 AI 编程代理对话。
 
 [English](README.md)
 
-> **想要桌面图形界面？** 试试 [CodePilot](https://github.com/op7418/CodePilot) —— 一个功能完整的桌面应用，提供可视化聊天界面、会话管理、文件树预览、权限控制等。本 Skill 从 CodePilot 的 IM 桥接模块中提取而来，适合偏好轻量级纯 CLI 方案的用户。
+> **想要桌面图形界面？** 试试 [CodePilot](https://github.com/william-drakemond/CodePilot) —— 一个功能完整的桌面应用，提供可视化聊天界面、会话管理、文件树预览、权限控制等。本 Skill 从 CodePilot 的 IM 桥接模块中提取而来，适合偏好轻量级纯 CLI 方案的用户。
 
 ---
 
@@ -13,7 +13,7 @@
 本 Skill 运行一个后台守护进程，将你的 IM 机器人连接到 Claude Code 或 Codex 会话。来自 IM 的消息被转发给 AI 编程代理，响应（包括工具调用、权限请求、流式预览）会发回到聊天中。
 
 ```
-你 (Telegram/Discord/飞书/QQ)
+你 (Telegram/Discord/Slack/飞书/QQ)
   ↕ Bot API
 后台守护进程 (Node.js)
   ↕ Claude Agent SDK 或 Codex SDK（通过 CTI_RUNTIME 配置）
@@ -22,10 +22,10 @@ Claude Code / Codex → 读写你的代码库
 
 ## 功能特点
 
-- **四大 IM 平台** — Telegram、Discord、飞书、QQ，可任意组合启用
+- **五大 IM 平台** — Telegram、Discord、Slack、飞书、QQ，可任意组合启用
 - **交互式配置** — 引导式向导逐步收集 token，附带详细获取说明
-- **权限控制** — 工具调用需要在聊天中通过内联按钮（Telegram/Discord）或文本 `/perm` 命令（飞书/QQ）明确批准
-- **流式预览** — 实时查看 Claude 的输出（Telegram 和 Discord 支持）
+- **权限控制** — 工具调用需要在聊天中通过内联按钮（Telegram/Discord/Slack）或文本 `/perm` 命令（飞书/QQ）明确批准
+- **流式预览** — 实时查看 Claude 的输出（Telegram、Discord 和 Slack 支持）
 - **会话持久化** — 对话在守护进程重启后保留
 - **密钥保护** — token 以 `chmod 600` 存储，日志中自动脱敏
 - **无需编写代码** — 安装 Skill 后运行 `/claude-to-im setup` 即可
@@ -41,13 +41,13 @@ Claude Code / Codex → 读写你的代码库
 ### npx skills（推荐）
 
 ```bash
-npx skills add op7418/Claude-to-IM-skill
+npx skills add william-drakemond/Claude-to-IM-skill
 ```
 
 ### Git 克隆
 
 ```bash
-git clone https://github.com/op7418/Claude-to-IM-skill.git ~/.claude/skills/claude-to-im
+git clone https://github.com/william-drakemond/Claude-to-IM-skill.git ~/.claude/skills/claude-to-im
 ```
 
 将仓库直接克隆到个人 Skills 目录，Claude Code 会自动发现。
@@ -57,7 +57,7 @@ git clone https://github.com/op7418/Claude-to-IM-skill.git ~/.claude/skills/clau
 如果你想把仓库放在其他位置（比如方便开发）：
 
 ```bash
-git clone https://github.com/op7418/Claude-to-IM-skill.git ~/code/Claude-to-IM-skill
+git clone https://github.com/william-drakemond/Claude-to-IM-skill.git ~/code/Claude-to-IM-skill
 mkdir -p ~/.claude/skills
 ln -s ~/code/Claude-to-IM-skill ~/.claude/skills/claude-to-im
 ```
@@ -67,14 +67,14 @@ ln -s ~/code/Claude-to-IM-skill ~/.claude/skills/claude-to-im
 如果你使用 [Codex](https://github.com/openai/codex)，直接克隆到 Codex skills 目录：
 
 ```bash
-git clone https://github.com/op7418/Claude-to-IM-skill.git ~/.codex/skills/claude-to-im
+git clone https://github.com/william-drakemond/Claude-to-IM-skill.git ~/.codex/skills/claude-to-im
 ```
 
 或使用提供的安装脚本，自动安装依赖并构建：
 
 ```bash
 # 克隆并安装（复制模式）
-git clone https://github.com/op7418/Claude-to-IM-skill.git ~/code/Claude-to-IM-skill
+git clone https://github.com/william-drakemond/Claude-to-IM-skill.git ~/code/Claude-to-IM-skill
 bash ~/code/Claude-to-IM-skill/scripts/install-codex.sh
 
 # 或使用符号链接模式（方便开发）
@@ -97,7 +97,7 @@ bash ~/code/Claude-to-IM-skill/scripts/install-codex.sh --link
 
 向导会引导你完成以下步骤：
 
-1. **选择渠道** — 选择 Telegram、Discord、飞书、QQ，或任意组合
+1. **选择渠道** — 选择 Telegram、Discord、Slack、飞书、QQ，或任意组合
 2. **输入凭据** — 向导会详细说明如何获取每个 token、需要开启哪些设置、授予哪些权限
 3. **设置默认值** — 工作目录、模型、模式
 4. **验证** — 立即通过平台 API 验证 token 有效性
@@ -148,6 +148,15 @@ bash ~/code/Claude-to-IM-skill/scripts/install-codex.sh --link
 2. Bot 标签页 → Reset Token → 复制 token
 3. 在 Privileged Gateway Intents 下开启 **Message Content Intent**
 4. OAuth2 → URL Generator → scope 选 `bot` → 权限选 Send Messages、Read Message History、View Channels → 复制邀请链接
+
+### Slack
+
+1. 前往 [Slack API](https://api.slack.com/apps) → 创建新应用 → 从头开始
+2. 启用 **Socket Mode**（无需公网 URL）→ 创建 App-Level Token（`xapp-...`）
+3. OAuth & Permissions → 添加 Bot Token Scopes：`chat:write`、`channels:history`、`groups:history`、`im:history`、`mpim:history`、`files:read`、`users:read`
+4. 安装到工作区 → 复制 Bot User OAuth Token（`xoxb-...`）
+5. Event Subscriptions → 订阅 `message.channels`、`message.groups`、`message.im`、`message.mpim`
+6. Interactivity & Shortcuts → 启用（用于权限按钮）
 
 ### 飞书 / Lark
 
