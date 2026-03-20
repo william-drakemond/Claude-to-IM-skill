@@ -67,4 +67,43 @@ describe('PendingPermissions', () => {
     assert.match(result.message!, /timed out/i);
     assert.equal(pp.size, 0);
   });
+
+  it('abort signal resolves immediately with deny', async () => {
+    const pp = new PendingPermissions();
+    const ac = new AbortController();
+
+    const promise = pp.waitFor('req-abort', ac.signal);
+    assert.equal(pp.size, 1);
+
+    ac.abort();
+    const result = await promise;
+    assert.equal(result.behavior, 'deny');
+    assert.match(result.message!, /stopped/i);
+    assert.equal(pp.size, 0);
+  });
+
+  it('already-aborted signal resolves immediately', async () => {
+    const pp = new PendingPermissions();
+    const ac = new AbortController();
+    ac.abort(); // abort before waitFor
+
+    const result = await pp.waitFor('req-pre-abort', ac.signal);
+    assert.equal(result.behavior, 'deny');
+    assert.match(result.message!, /stopped/i);
+    assert.equal(pp.size, 0);
+  });
+
+  it('normal resolve takes priority over abort signal', async () => {
+    const pp = new PendingPermissions();
+    const ac = new AbortController();
+
+    const promise = pp.waitFor('req-race', ac.signal);
+    pp.resolve('req-race', { behavior: 'allow' });
+
+    const result = await promise;
+    assert.equal(result.behavior, 'allow');
+    // Abort after resolve should be harmless
+    ac.abort();
+    assert.equal(pp.size, 0);
+  });
 });

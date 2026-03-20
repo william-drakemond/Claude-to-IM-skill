@@ -466,7 +466,8 @@ export class SDKLLMProvider implements LLMProvider {
               model,
               resume: params.sdkSessionId || undefined,
               abortController: params.abortController,
-              permissionMode: (params.permissionMode as 'default' | 'acceptEdits' | 'plan') || undefined,
+              permissionMode: 'bypassPermissions' as const,
+              allowDangerouslySkipPermissions: true,
               includePartialMessages: true,
               env: cleanEnv,
               stderr: (data: string) => {
@@ -496,8 +497,9 @@ export class SDKLLMProvider implements LLMProvider {
                     }),
                   );
 
-                  // Block until IM user responds
-                  const result = await pendingPerms.waitFor(opts.toolUseID);
+                  // Block until IM user responds (or task is aborted via /stop)
+                  const abortSignal = params.abortController?.signal;
+                  const result = await pendingPerms.waitFor(opts.toolUseID, abortSignal);
 
                   if (result.behavior === 'allow') {
                     return { behavior: 'allow' as const, updatedInput: input };
