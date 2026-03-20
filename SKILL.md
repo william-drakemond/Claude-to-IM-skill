@@ -1,11 +1,11 @@
 ---
 name: claude-to-im
 description: |
-  Bridge THIS Claude Code session to Telegram, Discord, Feishu/Lark, or QQ so the
+  Bridge THIS Claude Code session to Telegram, Discord, Slack, Feishu/Lark, or QQ so the
   user can chat with Claude from their phone. Use for: setting up, starting, stopping,
   or diagnosing the claude-to-im bridge daemon; forwarding Claude replies to a messaging
   app; any phrase like "claude-to-im", "bridge", "消息推送", "消息转发", "桥接",
-  "连上飞书", "手机上看claude", "启动后台服务", "诊断", "查看日志", "配置".
+  "连上飞书", "连上slack", "手机上看claude", "启动后台服务", "诊断", "查看日志", "配置".
   Subcommands: setup, start, stop, status, logs, reconfigure, doctor.
   Do NOT use for: building standalone bots, webhook integrations, or coding with IM
   platform SDKs — those are regular programming tasks.
@@ -76,9 +76,10 @@ When AskUserQuestion IS available, collect input **one field at a time**. After 
 
 **Step 1 — Choose channels**
 
-Ask which channels to enable (telegram, discord, feishu, qq). Accept comma-separated input. Briefly describe each:
+Ask which channels to enable (telegram, discord, slack, feishu, qq). Accept comma-separated input. Briefly describe each:
 - **telegram** — Best for personal use. Streaming preview, inline permission buttons.
 - **discord** — Good for team use. Server/channel/user-level access control.
+- **slack** — For Slack workspaces. Socket Mode (no public URL needed), streaming preview, Block Kit permission buttons.
 - **feishu** (Lark) — For Feishu/Lark teams. Streaming cards, tool progress, inline permission buttons.
 - **qq** — QQ C2C private chat only. No inline permission buttons, no streaming preview. Permissions use text `/perm ...` commands.
 
@@ -88,6 +89,7 @@ For each enabled channel, collect one credential at a time. Tell the user where 
 
 - **Telegram**: Bot Token → confirm (masked) → Chat ID (see guide for how to get it) → confirm → Allowed User IDs (optional). **Important:** At least one of Chat ID or Allowed User IDs must be set, otherwise the bot will reject all messages.
 - **Discord**: Bot Token → confirm (masked) → Allowed User IDs → Allowed Channel IDs (optional) → Allowed Guild IDs (optional). **Important:** At least one of Allowed User IDs or Allowed Channel IDs must be set, otherwise the bot will reject all messages (default-deny).
+- **Slack**: Bot Token (xoxb-..., from OAuth & Permissions page) → confirm (masked) → App Token (xapp-..., from Socket Mode settings — required for WebSocket connection) → confirm (masked) → Allowed User IDs (optional, e.g. U01ABC123) → Allowed Channel IDs (optional, e.g. C01ABC123). **Important:** At least one of Allowed User IDs or Allowed Channel IDs must be set (default-deny). Remind user to: enable Socket Mode, add bot event subscriptions (message.channels, message.groups, message.im, message.mpim), and enable Interactivity for permission buttons.
 - **Feishu**: App ID → confirm → App Secret → confirm (masked) → Domain (optional) → Allowed User IDs (optional). After collecting credentials, explain the two-phase setup the user must complete:
   - **Phase 1** (before starting bridge): (A) batch-add permissions, (B) enable bot capability, (C) publish first version + admin approve. This makes permissions and bot effective.
   - **Phase 2** (requires running bridge): (D) run `/claude-to-im start`, (E) configure events (`im.message.receive_v1`) and callback (`card.action.trigger`) with long connection mode, (F) publish second version + admin approve.
