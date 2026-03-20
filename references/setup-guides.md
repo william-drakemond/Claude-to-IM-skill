@@ -95,6 +95,87 @@ Enter comma-separated IDs. Leave empty to allow all servers the bot is in.
 
 ---
 
+## Slack
+
+### Bot Token and App Token
+
+**How to create a Slack App and get credentials:**
+
+1. Go to https://api.slack.com/apps
+2. Click **"Create New App"** → choose **"From scratch"**
+3. Enter an app name (e.g. "Claude Bridge") and select your workspace → click **"Create App"**
+
+### Enable Socket Mode (required)
+
+Socket Mode lets the bot connect via WebSocket — no public URL needed.
+
+1. In the left sidebar, go to **"Socket Mode"**
+2. Toggle **"Enable Socket Mode"** → ON
+3. You'll be prompted to create an **App-Level Token**:
+   - Name it (e.g. "socket-mode-token")
+   - Add the scope: `connections:write`
+   - Click **"Generate"**
+4. Copy the token (starts with `xapp-`) — this is your **App Token**
+
+### Configure Bot Permissions
+
+1. Go to **"OAuth & Permissions"** in the left sidebar
+2. Under **"Bot Token Scopes"**, add these scopes:
+   - `chat:write` — Send messages
+   - `chat:write.public` — Send messages to channels the bot isn't in
+   - `channels:history` — Read messages in public channels
+   - `groups:history` — Read messages in private channels
+   - `im:history` — Read DMs
+   - `mpim:history` — Read group DMs
+   - `files:read` — Download shared files (for image attachments)
+   - `users:read` — Look up user info
+3. Click **"Install to Workspace"** (or **"Reinstall"** if already installed)
+4. After authorizing, copy the **Bot User OAuth Token** (starts with `xoxb-`) — this is your **Bot Token**
+
+### Enable Event Subscriptions
+
+1. Go to **"Event Subscriptions"** in the left sidebar
+2. Toggle **"Enable Events"** → ON
+3. Under **"Subscribe to bot events"**, add:
+   - `message.channels` — Messages in public channels
+   - `message.groups` — Messages in private channels
+   - `message.im` — Direct messages
+   - `message.mpim` — Group DMs
+4. Click **"Save Changes"**
+
+### Enable Interactivity (for permission buttons)
+
+1. Go to **"Interactivity & Shortcuts"** in the left sidebar
+2. Toggle **"Interactivity"** → ON
+3. Click **"Save Changes"** (no Request URL needed — Socket Mode handles it)
+
+### Invite the Bot to Channels
+
+The bot will only receive messages from channels it's been added to:
+1. In Slack, go to the channel where you want to use the bot
+2. Type `/invite @YourBotName` or click the channel name → **"Integrations"** → **"Add an app"**
+
+### Finding User and Channel IDs
+
+**User ID:**
+1. Click on a user's profile in Slack
+2. Click the **"..."** (more) button → **"Copy member ID"**
+3. Format: `U01ABC123`
+
+**Channel ID:**
+1. Right-click a channel name → **"View channel details"**
+2. Scroll to the bottom — the Channel ID is shown there
+3. Format: `C01ABC123`
+
+### Summary of Tokens
+
+| Token | Setting | Starts with | Source |
+|-------|---------|-------------|--------|
+| Bot Token | `CTI_SLACK_BOT_TOKEN` | `xoxb-` | OAuth & Permissions page |
+| App Token | `CTI_SLACK_APP_TOKEN` | `xapp-` | Socket Mode → App-Level Tokens |
+
+---
+
 ## Feishu / Lark
 
 ### App ID and App Secret

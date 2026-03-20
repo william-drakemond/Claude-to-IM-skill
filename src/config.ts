@@ -22,6 +22,11 @@ export interface Config {
   discordAllowedUsers?: string[];
   discordAllowedChannels?: string[];
   discordAllowedGuilds?: string[];
+  // Slack
+  slackBotToken?: string;
+  slackAppToken?: string;
+  slackAllowedUsers?: string[];
+  slackAllowedChannels?: string[];
   // QQ
   qqAppId?: string;
   qqAppSecret?: string;
@@ -95,6 +100,10 @@ export function loadConfig(): Config {
       env.get("CTI_DISCORD_ALLOWED_CHANNELS")
     ),
     discordAllowedGuilds: splitCsv(env.get("CTI_DISCORD_ALLOWED_GUILDS")),
+    slackBotToken: env.get("CTI_SLACK_BOT_TOKEN") || undefined,
+    slackAppToken: env.get("CTI_SLACK_APP_TOKEN") || undefined,
+    slackAllowedUsers: splitCsv(env.get("CTI_SLACK_ALLOWED_USERS")),
+    slackAllowedChannels: splitCsv(env.get("CTI_SLACK_ALLOWED_CHANNELS")),
     qqAppId: env.get("CTI_QQ_APP_ID") || undefined,
     qqAppSecret: env.get("CTI_QQ_APP_SECRET") || undefined,
     qqAllowedUsers: splitCsv(env.get("CTI_QQ_ALLOWED_USERS")),
@@ -148,6 +157,16 @@ export function saveConfig(config: Config): void {
   out += formatEnvLine(
     "CTI_DISCORD_ALLOWED_GUILDS",
     config.discordAllowedGuilds?.join(",")
+  );
+  out += formatEnvLine("CTI_SLACK_BOT_TOKEN", config.slackBotToken);
+  out += formatEnvLine("CTI_SLACK_APP_TOKEN", config.slackAppToken);
+  out += formatEnvLine(
+    "CTI_SLACK_ALLOWED_USERS",
+    config.slackAllowedUsers?.join(",")
+  );
+  out += formatEnvLine(
+    "CTI_SLACK_ALLOWED_CHANNELS",
+    config.slackAllowedChannels?.join(",")
   );
   out += formatEnvLine("CTI_QQ_APP_ID", config.qqAppId);
   out += formatEnvLine("CTI_QQ_APP_SECRET", config.qqAppSecret);
@@ -223,6 +242,26 @@ export function configToSettings(config: Config): Map<string, string> {
   if (config.feishuDomain) m.set("bridge_feishu_domain", config.feishuDomain);
   if (config.feishuAllowedUsers)
     m.set("bridge_feishu_allowed_users", config.feishuAllowedUsers.join(","));
+
+  // ── Slack ──
+  // Upstream keys: bridge_slack_bot_token, bridge_slack_app_token,
+  //   bridge_slack_enabled, bridge_slack_allowed_users,
+  //   bridge_slack_allowed_channels
+  m.set(
+    "bridge_slack_enabled",
+    config.enabledChannels.includes("slack") ? "true" : "false"
+  );
+  if (config.slackBotToken)
+    m.set("bridge_slack_bot_token", config.slackBotToken);
+  if (config.slackAppToken)
+    m.set("bridge_slack_app_token", config.slackAppToken);
+  if (config.slackAllowedUsers)
+    m.set("bridge_slack_allowed_users", config.slackAllowedUsers.join(","));
+  if (config.slackAllowedChannels)
+    m.set(
+      "bridge_slack_allowed_channels",
+      config.slackAllowedChannels.join(",")
+    );
 
   // ── QQ ──
   // Upstream keys: bridge_qq_enabled, bridge_qq_app_id, bridge_qq_app_secret,

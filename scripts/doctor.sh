@@ -360,6 +360,32 @@ if [ -f "$CONFIG_FILE" ]; then
     fi
   fi
 
+  # --- Slack ---
+  if echo "$CTI_CHANNELS" | grep -q slack; then
+    SLACK_BOT_TOKEN=$(get_config CTI_SLACK_BOT_TOKEN)
+    SLACK_APP_TOKEN=$(get_config CTI_SLACK_APP_TOKEN)
+    if [ -n "$SLACK_BOT_TOKEN" ]; then
+      SLACK_RESULT=$(curl -s --max-time 5 -X POST "https://slack.com/api/auth.test" \
+        -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" 2>/dev/null || echo '{"ok":false}')
+      if echo "$SLACK_RESULT" | grep -q '"ok":true'; then
+        check "Slack bot token is valid" 0
+      else
+        check "Slack bot token is valid (auth.test failed)" 1
+      fi
+    else
+      check "Slack bot token configured" 1
+    fi
+    if [ -n "$SLACK_APP_TOKEN" ]; then
+      if echo "${SLACK_APP_TOKEN}" | grep -qE '^xapp-'; then
+        check "Slack app token format (xapp-)" 0
+      else
+        check "Slack app token format (should start with xapp-)" 1
+      fi
+    else
+      check "Slack app token configured (required for Socket Mode)" 1
+    fi
+  fi
+
   # --- Discord ---
   if echo "$CTI_CHANNELS" | grep -q discord; then
     DC_TOKEN=$(get_config CTI_DISCORD_BOT_TOKEN)
